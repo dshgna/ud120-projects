@@ -14,7 +14,7 @@ import sys
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
 from sklearn.cluster import KMeans
-
+from sklearn.preprocessing import MinMaxScaler
 
 
 def Draw(pred, features, poi, mark_poi=False, name="image.png", f1_name="feature 1", f2_name="feature 2"):
@@ -37,7 +37,6 @@ def Draw(pred, features, poi, mark_poi=False, name="image.png", f1_name="feature
     plt.show()
 
 
-
 ### load in the dict of dicts containing all the data on each person in the dataset
 data_dict = pickle.load( open("../final_project/final_project_dataset.pkl", "r") )
 ### there's an outlier--remove it! 
@@ -53,7 +52,6 @@ poi  = "poi"
 features_list = [poi, feature_1, feature_2, feature_3]
 data = featureFormat(data_dict, features_list )
 poi, finance_features = targetFeatureSplit( data )
-
 
 ### in the "clustering with 3 features" part of the mini-project,
 ### you'll want to change this line to 
@@ -76,16 +74,20 @@ try:
 except NameError:
     print "no predictions object named pred found, no clusters to plot"
 
-exercised_stock_options = []
 salary = []
+exercised_stock_options = []
 for name in data_dict:
     stock = data_dict[name]['exercised_stock_options']
     sal = data_dict[name]['salary']
     if not np.isnan(float(stock)):
-        exercised_stock_options.append(stock)
+        exercised_stock_options.append(float(stock))
     if not np.isnan(float(sal)):
-        salary.append(sal)
-    
+        salary.append(float(sal))
+
+#Feature rescaling
+scaler = MinMaxScaler()
+print "Rescaled salary $200,000:", scaler.fit_transform([[float(min(salary))], [200000], [float(max(salary))]])
+print "Rescaled salary $200,000:", scaler.fit_transform([[float(min(exercised_stock_options))], [1000000], [float(max(exercised_stock_options))]])
 
 print "Minimum stock value:", min(exercised_stock_options)
 print "Maximum stock value:", max(exercised_stock_options)
